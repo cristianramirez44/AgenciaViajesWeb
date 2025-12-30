@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agencia de Viajes - Búsqueda de Vuelos y Paquetes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Bungee', cursive; /* Fuente gruesa y estilizada, acorde con el tema neón */
+            margin: 20px;
+            background: linear-gradient(135deg, #000000, #1a1a1a); /* Fondo negro con gradiente para un efecto llamativo */
+            color: #ffffff; /* Texto blanco para contraste */
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: rgba(0, 0, 0, 0.8); /* Fondo semi-transparente negro para un look moderno */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3); /* Sombras neón en rosa y cian */
+            border: 2px solid #00ff00; /* Borde neón verde */
+        }
+        h1 {
+            text-align: center;
+            color: #ff00ff; /* Rosa neón */
+            text-shadow: 0 0 8px #ff00ff; /* Glow reducido a uno solo y menos intenso para evitar borrosidad */
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #00ffff; /* Cian neón para subtítulos */
+            text-shadow: 0 0 10px #00ffff;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        label {
+            color: #00ffff; /* Cian neón */
+            text-shadow: 0 0 5px #00ffff;
+        }
+        select, input {
+            padding: 10px;
+            border: 2px solid #ffff00; /* Amarillo neón */
+            border-radius: 4px;
+            background: #333; /* Fondo oscuro para inputs */
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 255, 0, 0.5); /* Glow amarillo */
+            font-family: inherit; /* Hereda la fuente estilizada */
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #ff4500; /* Naranja neón al enfocar */
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.8);
+        }
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff); /* Gradiente rosa a cian */
+            color: #000; /* Texto negro para contraste */
+            cursor: pointer;
+            text-shadow: 0 0 5px #fff;
+            box-shadow: 0 0 10px rgba(255, 0, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3);
+            transition: all 0.3s ease; /* Transición suave */
+            font-family: inherit; /* Hereda la fuente estilizada */
+        }
+        button:hover {
+            background: linear-gradient(45deg, #00ffff, #ff00ff); /* Gradiente invertido al hover */
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.8), 0 0 30px rgba(0, 255, 255, 0.6);
+            transform: scale(1.05); /* Efecto de escala */
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .result-item {
+            border: 2px solid #ff4500; /* Naranja neón */
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            background: rgba(255, 69, 0, 0.1); /* Fondo semi-transparente naranja */
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+            transition: all 0.3s ease;
+            font-family: inherit; /* Hereda la fuente estilizada */
+        }
+        .result-item:hover {
+            background: rgba(255, 69, 0, 0.2);
+            box-shadow: 0 0 15px rgba(255, 69, 0, 0.8);
+        }
+        .error {
+            color: #ff0000; /* Rojo neón */
+            text-shadow: 0 0 10px #ff0000;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ff0000;
+            font-family: inherit; /* Hereda la fuente estilizada */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Búsqueda de Vuelos y Paquetes Turísticos</h1>
+        <form id="searchForm">
+            <label for="origin">Origen:</label>
+            <select id="origin" required>
+                <option value="">Selecciona un origen</option>
+                <!-- Lista de destinos reales se poblará con JS -->
+            </select>
+
+            <label for="destination">Destino:</label>
+            <select id="destination" required>
+                <option value="">Selecciona un destino</option>
+                <!-- Lista de destinos reales se poblará con JS -->
+            </select>
+
+            <label for="departureDate">Fecha de Ida:</label>
+            <input type="date" id="departureDate" required>
+
+            <label for="returnDate">Fecha de Vuelta:</label>
+            <input type="date" id="returnDate" required>
+
+            <button type="submit">Buscar Vuelos</button>
+        </form>
+
+        <div id="results" class="results" style="display: none;">
+            <h2>Resultados de Búsqueda</h2>
+            <div id="resultList"></div>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        // Lista de destinos reales (ciudades y países populares)
+        const destinations = [
+            "Nueva York, Estados Unidos",
+            "París, Francia",
+            "Tokio, Japón",
+            "Londres, Reino Unido",
+            "Roma, Italia",
+            "Barcelona, España",
+            "Sídney, Australia",
+            "Dubái, Emiratos Árabes Unidos",
+            "Cancún, México",
+            "Río de Janeiro, Brasil",
+            "Berlín, Alemania",
+            "Ámsterdam, Países Bajos",
+            "Bangkok, Tailandia",
+            "Moscú, Rusia",
+            "Ciudad del Cabo, Sudáfrica"
+        ];
+
+        // Función para poblar los selects con la lista de destinos
+        function populateDestinations() {
+            const originSelect = document.getElementById('origin');
+            const destinationSelect = document.getElementById('destination');
+
+            destinations.forEach(dest => {
+                const option1 = document.createElement('option');
+                option1.value = dest;
+                option1.textContent = dest;
+                originSelect.appendChild(option1);
+
+                const option2 = document.createElement('option');
+                option2.value = dest;
+                option2.textContent = dest;
+                destinationSelect.appendChild(option2);
+            });
+        }
+
+        // Función para manejar la búsqueda
+        document.getElementById('searchForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const origin = document.getElementById('origin').value;
+            const destination = document.getElementById('destination').value;
+            const departureDate = document.getElementById('departureDate').value;
+            const returnDate = document.getElementById('returnDate').value;
+
+            // Validación básica
+            if (origin === destination) {
+                showError('El origen y destino no pueden ser iguales.');
+                return;
+            }
+            if (new Date(departureDate) >= new Date(returnDate)) {
+                showError('La fecha de vuelta debe ser posterior a la de ida.');
+                return;
+            }
+
+            // Simulación de resultados (en producción, conectar con API real como Amadeus)
+            const mockResults = [
+                { flight: 'Vuelo 123 - Aerolínea XYZ', price: '$500', date: departureDate },
+                { flight: 'Vuelo 456 - Aerolínea ABC', price: '$450', date: departureDate },
+                { flight: 'Paquete Turístico: Hotel + Vuelo', price: '$800', date: departureDate }
+            ];
+
+            displayResults(mockResults);
+            hideError();
+        });
+
+        // Función para mostrar resultados
+        function displayResults(results) {
+            const resultList = document.getElementById('resultList');
+            resultList.innerHTML = '';
+            results.forEach(result => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `<strong>${result.flight}</strong> - Precio: ${result.price} - Fecha: ${result.date}`;
+                resultList.appendChild(item);
+            });
+            document.getElementById('results').style.display = 'block';
+        }
+
+        // Función para mostrar errores
+        function showError(message) {
+            document.getElementById('error').textContent = message;
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        // Función para ocultar errores
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+
+        // Inicializar la página
+        window.onload = populateDestinations;
+    </script>
+</body>
+</html>
